@@ -145,10 +145,10 @@ def saveAllPeaks(df, popt, peaks, saveFileID):
         plt.savefig(peaksFolder + "peak_" + '%03d' % idx + ".png", dpi=200)
         plt.close()
 
+
 def addInterestedPeakLine():
     for lineXLocation in interestedPeakList:
-        plt.axvline(x=lineXLocation,c="r")
-
+        plt.axvline(x=lineXLocation, c="r")
 
 
 def readInterestedPeakTxt(filePath):
@@ -167,6 +167,7 @@ def mainFitting(dataCSVFileName):
 
     print("locating peaks")
     peaks, properties = find_peaks(df.y.values, prominence=[100000, None], height=1000)
+    savePreFittingSpectrum(df, peaks, saveFileID)
     print("peaks found: ", len(peaks))
     print("start fitting")
 
@@ -174,7 +175,6 @@ def mainFitting(dataCSVFileName):
     print("finished fitting")
 
     peaksFolder = makeDirInDataFolder(saveFileID + "_peaks") + "/"
-    savePreFittingSpectrum(df, peaks, saveFileID)
 
     writeCSVArray = []
     for index, val in enumerate(peaks):

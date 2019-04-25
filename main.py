@@ -147,7 +147,7 @@ def saveAllPeaks(df, popt, peaks, saveFileID):
 
 def addInterestedPeakLine():
     for lineXLocation in interestedPeakList:
-        plt.axvline(x=lineXLocation)
+        plt.axvline(x=lineXLocation,c="r")
 
 
 

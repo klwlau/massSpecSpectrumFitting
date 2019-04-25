@@ -98,7 +98,7 @@ def saveSpectrum(df, popt, peaks, saveFileID):
     plt.close()
 
 
-def preFittingSpectrum(df, peaks, saveFileID):
+def savePreFittingSpectrum(df, peaks, saveFileID):
     style = dict(size=10, color='black')
     peaksFolder = makeDirInDataFolder(saveFileID + "_peaks") + "/"
     plt.figure(figsize=(20, 8))
@@ -138,6 +138,16 @@ def saveAllPeaks(df, popt, peaks, saveFileID):
         plt.savefig(peaksFolder + "peak_" + '%03d' % idx + ".png", dpi=200)
         plt.close()
 
+def readPeakTxt(filePath):
+    with open(filePath) as f:
+        data = f.readlines()
+    returnList = []
+    for item in data:
+        print(item.rstrip())
+        returnList.append(float(item.rstrip()))
+    return returnList
+
+
 
 def mainFitting(dataCSVFileName):
     df = pd.read_csv(dataCSVFileName, skiprows=2, usecols=[1, 2], names=["x", "y"])
@@ -154,7 +164,7 @@ def mainFitting(dataCSVFileName):
     print("finished fitting")
 
     peaksFolder = makeDirInDataFolder(saveFileID + "_peaks") + "/"
-    preFittingSpectrum(df, peaks, saveFileID)
+    savePreFittingSpectrum(df, peaks, saveFileID)
 
     writeCSVArray = []
     for index, val in enumerate(peaks):
@@ -172,9 +182,11 @@ def mainFitting(dataCSVFileName):
 
 fileList = glob.glob("./*.csv")
 fileList = sorted(fileList)
-for index, fileName in enumerate(fileList):
-    print("-----------", "Fitting:", fileName, ",", index + 1, "/", len(fileList), "-----------")
 
+
+for index, fileName in enumerate(fileList):
+
+    print("-----------", "Fitting:", fileName, ",", index + 1, "/", len(fileList), "-----------")
     try:
         mainFitting(fileName)
     except ValueError:

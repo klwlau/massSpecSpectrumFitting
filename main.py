@@ -149,7 +149,7 @@ def saveAllPeaks(df, popt, peaks, saveFileID):
 
 def addInterestedPeakLine():
     for lineXLocation in interestedPeakList:
-        plt.axvline(x=lineXLocation, c="g")
+        plt.axvline(x=lineXLocation, c="m")
 
 
 def readInterestedPeakTxt(filePath):
@@ -190,7 +190,7 @@ def mainFitting(dataCSVFileName):
     print("Saving Peaks")
     saveAllPeaks(df, popt, peaks, saveFileID)
 
-def task(index,fileName):
+def singleCoreTask(index, fileName):
     print("-----------", "Fitting:", fileName, ",", index + 1, "/", len(fileList), "-----------")
     try:
         mainFitting(fileName)
@@ -205,8 +205,12 @@ fileList = glob.glob("./*.csv")
 fileList = sorted(fileList)
 interestedPeakList = readInterestedPeakTxt("./interestedPeakList.txt")
 
-for index, fileName in enumerate(fileList):
-    task(index,fileName)
+# for index, fileName in enumerate(fileList):
+#     task(index,fileName)
+
+with Parallel(n_jobs=-1, verbose=2) as parallel:
+    parallel(delayed(singleCoreTask)(index, filePath) for index, filePath in enumerate(fileList))
+
 
 
 print("Finished")

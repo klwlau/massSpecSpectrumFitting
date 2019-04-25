@@ -6,6 +6,7 @@ from scipy.optimize import curve_fit
 import csv
 import os
 import glob
+from joblib import Parallel, delayed
 
 
 def makeDirInDataFolder(dirName):
@@ -148,7 +149,7 @@ def saveAllPeaks(df, popt, peaks, saveFileID):
 
 def addInterestedPeakLine():
     for lineXLocation in interestedPeakList:
-        plt.axvline(x=lineXLocation, c="r")
+        plt.axvline(x=lineXLocation, c="g")
 
 
 def readInterestedPeakTxt(filePath):
@@ -189,13 +190,7 @@ def mainFitting(dataCSVFileName):
     print("Saving Peaks")
     saveAllPeaks(df, popt, peaks, saveFileID)
 
-
-fileList = glob.glob("./*.csv")
-fileList = sorted(fileList)
-interestedPeakList = readInterestedPeakTxt("./interestedPeakList.txt")
-
-for index, fileName in enumerate(fileList):
-
+def task(index,fileName):
     print("-----------", "Fitting:", fileName, ",", index + 1, "/", len(fileList), "-----------")
     try:
         mainFitting(fileName)
@@ -205,5 +200,13 @@ for index, fileName in enumerate(fileList):
         newPath = os.path.join(valueErrorFolder, fileName)
         os.rename(fileName, newPath)
         print("relocate file to: " + newPath)
+
+fileList = glob.glob("./*.csv")
+fileList = sorted(fileList)
+interestedPeakList = readInterestedPeakTxt("./interestedPeakList.txt")
+
+for index, fileName in enumerate(fileList):
+    task(index,fileName)
+
 
 print("Finished")

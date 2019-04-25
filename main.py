@@ -156,7 +156,6 @@ def readInterestedPeakTxt(filePath):
         data = f.readlines()
     returnList = []
     for item in data:
-        print(item.rstrip())
         returnList.append(float(item.rstrip()))
     return returnList
 

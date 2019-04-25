@@ -90,6 +90,8 @@ def saveSpectrum(df, popt, peaks, saveFileID):
         plt.plot(df.x, NGauss(1)(df.x.values, *gaussPara))
         plt.text(df.x.values[val], df.y.values[val] + df.y.values.max() / 20, '%03d' % i, ha='center', **style)
 
+    addInterestedPeakLine()
+
     plt.title("Data Set: " + saveFileID)
     plt.legend()
     plt.xlim(df.x.values[1], df.x.values[-1])
@@ -107,6 +109,8 @@ def savePreFittingSpectrum(df, peaks, saveFileID):
 
     for i, val in enumerate(peaks):
         plt.text(df.x.values[val], df.y.values[val] + df.y.values.max() / 20, '%03d' % i, ha='center', **style)
+
+    addInterestedPeakLine()
 
     plt.title("Data Set: " + saveFileID)
     plt.legend()
@@ -127,18 +131,27 @@ def saveAllPeaks(df, popt, peaks, saveFileID):
 
         gaussPara = popt[idx * 3:idx * 3 + 3]
         gaussPara = np.append(gaussPara, popt[-1])
+
         plt.plot(df.x, NGauss(1)(df.x.values, *gaussPara), label="Fitted Peak at x = " + "%.2f" % gaussPara[1])
         plt.text(df.x.values[val], df.y.values[val] * 1.3, '%03d' % idx, ha='center', **style)
 
         plt.title("Peak " + '%03d' % idx + " at x = " + "%.2f" % gaussPara[1])
         plt.xlim(gaussPara[1] - gaussPara[2] * 50, gaussPara[1] + gaussPara[2] * 50)
         plt.ylim(0, df.y.values[val] * 1.5)
-        plt.legend()
 
+        addInterestedPeakLine()
+
+        plt.legend()
         plt.savefig(peaksFolder + "peak_" + '%03d' % idx + ".png", dpi=200)
         plt.close()
 
-def readPeakTxt(filePath):
+def addInterestedPeakLine():
+    for lineXLocation in interestedPeakList:
+        plt.axvline(x=lineXLocation)
+
+
+
+def readInterestedPeakTxt(filePath):
     with open(filePath) as f:
         data = f.readlines()
     returnList = []
@@ -148,12 +161,10 @@ def readPeakTxt(filePath):
     return returnList
 
 
-
 def mainFitting(dataCSVFileName):
     df = pd.read_csv(dataCSVFileName, skiprows=2, usecols=[1, 2], names=["x", "y"])
     saveFileID = os.path.basename(dataCSVFileName)[:-4]
     print(saveFileID)
-
 
     print("locating peaks")
     peaks, properties = find_peaks(df.y.values, prominence=[100000, None], height=1000)
@@ -182,7 +193,7 @@ def mainFitting(dataCSVFileName):
 
 fileList = glob.glob("./*.csv")
 fileList = sorted(fileList)
-
+interestedPeakList = readInterestedPeakTxt("./interestedPeakList.txt")
 
 for index, fileName in enumerate(fileList):
 
@@ -190,10 +201,10 @@ for index, fileName in enumerate(fileList):
     try:
         mainFitting(fileName)
     except ValueError:
-        print("ValueError: "+fileName)
+        print("ValueError: " + fileName)
         valueErrorFolder = makeDirInDataFolder("ValueError")
         newPath = os.path.join(valueErrorFolder, fileName)
-        os.rename(fileName,newPath)
+        os.rename(fileName, newPath)
         print("relocate file to: " + newPath)
 
 print("Finished")
